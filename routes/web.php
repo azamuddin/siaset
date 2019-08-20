@@ -18,3 +18,7 @@ Route::get('/', function () {
 
 Route::get('/kategori/{id}/delete', 'KategoriController@delete');
 Route::resource('/kategori', 'KategoriController');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
