@@ -6,6 +6,7 @@
         <h4>Daftar aset</h4>
 
         <a href="{{url('/aset/create')}}" class="btn btn-primary"> Tambah </a>
+        <a href="{{url('/aset/import')}}" class="btn btn-success"> Import </a>
         <br/>
         <br/>
         <hr>

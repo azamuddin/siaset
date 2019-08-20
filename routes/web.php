@@ -26,4 +26,6 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
+Route::get('/aset/import', 'AsetController@import');
+Route::post('/aset/import', 'AsetController@processImport');
 Route::resource('/aset', 'AsetController');

@@ -6,6 +6,7 @@ use App\Kategori;
 use App\Satker;
 use App\Aset;
 use Carbon\Carbon;
+use App\Imports\AsetImports;
 use Illuminate\Http\Request;
 
 class AsetController extends Controller
@@ -167,5 +168,21 @@ class AsetController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function import()
+    {
+        return view("aset/import");
+    }
+
+    public function processImport(Request $request)
+    {
+        $request->validate([
+            "aset-excel" => "required|file|mimes:xls,xlsx|max:10000"
+        ]);
+
+        \Excel::import(new AsetImports, $request->file('aset-excel'));
+
+        return redirect()->to('/aset/import')->with('message', 'Data aset telah berhasil diimport');
     }
 }

@@ -948,29 +948,38 @@ class AsetImports implements OnEachRow, WithHeadingRow
 
     public function onRow(Row $row)
     {
-        $rowIndex = $row->getIndex();
+
         $row = $row->toArray();
 
-        $satker = Satker::firstOrCreate([
-            "nama_satker" => $row["satker"]
-        ]);
+        $satker = Satker::where("nama_satker", $row["satker"])->first();
 
-        $kategori = Kategori::firstOrCreate([
-            "nama_kategori" => $row["kategori"]
-        ]);
+        if(!$satker){
+            // jika belum ada satker dengan nama sesuai nilai $row["satker"] buat satker baru
+            $satker = new Satker;
+            $satker->nama_satker = $row["satker"];
+            $satker->save();
+        }
+
+        $kategori = Kategori::where("nama_kategori", $row["kategori"])->first();
+
+        if(!$kategori){
+            $kategori = new Kategori;
+            $kategori->nama_kategori = $row["kategori"];
+            $kategori->save();
+        }
 
         // asumsi column pertama di file excel adalah kode aset
-        Aset::firstOrCreate([
-            "kode" => $row["kode"],
-            "nama_aset" => $row["nama"],
-            "nilai_perolehan" => $row["nilai"],
-            "jenis" => $row["jenis"],
-            "kondisi" => $row["kondisi"],
-            "satker_id" => $satker->id,
-            "kategori_id" => $kategori->id,
-            "tgl_terima" => Carbon::create($row["tgl_terima"]),
-            "keterangan"  => $row["keterangan"]
-        ]);
+        $aset = new Aset;
+        $aset->kode = $row["kode"];
+        $aset->nama_aset = $row["nama"];
+        $aset->nilai_perolehan = $row["nilai_perolehan"];
+        $aset->jenis = $row["jenis"];
+        $aset->kondisi = $row["kondisi"];
+        $aset->satker_id = $satker->id;
+        $aset->kategori_id = $kategori->id;
+        $aset->tgl_terima = Carbon::create($row["tgl_terima"]);
+        $aset->keterangan = $row["keterangan"];
+        $aset->save();
     }
 }
 
@@ -1058,6 +1067,8 @@ public function processImport(Request $request)
 }
 ```
 
+> Karena kita menggunakan class `AsetImports` jangan lupa tambahkan kode `use App\Imports\AsetImports;` di bagian atas file.
+
 #### D.2.6 buat tombol ke halaman import dari daftar aset
 
 Buka file `app/resources/views/aset/index.blade.php`
@@ -1071,4 +1082,19 @@ Setelah kode ini:
 
 ```php
 <a href="{{url('/aset/create')}}" class="btn btn-primary"> Tambah </a>
+```
+
+#### D.2.7 Buat route ke dua method yang kita buat yaitu `import` dan `processImport`
+
+Buka file `routes/web.php`, tambahkan route berikut:
+
+```php
+Route::get('/aset/import', 'AsetController@import');
+Route::post('/aset/import', 'AsetController@processImport');
+```
+
+Pastikan letak route baru tersebut ada di atas route resource aset ini:
+
+```php
+Route::resource('/aset', 'AsetController');
 ```
