@@ -433,3 +433,196 @@ $request->validate([
     "nilai_perolehan" => "required"
 ]);
 ```
+
+### B.8 Menampilkan daftar aset
+
+#### B.8.1 Buka `AsetController` dan sesuaikan method `index`
+
+```php
+public function index()
+{
+    $semua_aset = Aset::orderBy('id', 'DESC')->paginate(10);
+
+    return view('aset/index', compact('semua_aset'));
+}
+```
+
+#### B.8.2 Buat file views `app/resources/aset/index.blade.php`
+
+lalu isi kode berikut:
+
+```html
+@extends('layouts.app')
+
+
+@section('content')
+    <div class="container pt-5">
+        <h4>Daftar aset</h4>
+
+        <a href="{{url('/aset/create')}}" class="btn btn-primary"> Tambah </a>
+        <br/>
+        <br/>
+        <hr>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>ID </th>
+                    <th>Foto</th>
+                    <th>Kode aset</th>
+                    <th>Nama aset</th>
+                    <th>Kondisi</th>
+                    <th>Jenis</th>
+                    <th>Kategori</th>
+                    <th>Satker</th>
+                    <th>Action </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($semua_aset as $aset)
+                <tr>
+                    <td> {{$aset->id}}</td>
+                    <td>
+                        @if(isset($aset->photo_url))
+                          <img width="100px" src="{{asset("/storage/$aset->photo_url")}}" alt="foto">
+                        @else
+                           -
+                        @endif
+                    </td>
+                    <td> {{$aset->kode}}</td>
+                    <td> {{$aset->nama_aset}} </td>
+                    <td> {{$aset->kondisi}} </td>
+                    <td> {{$aset->jenis}} </td>
+                    <td> {{$aset->kategori_id}} </td>
+                    <td> {{$aset->satker_id}} </td>
+                    <td>
+                        <a href="{{url("/aset/$aset->id/edit")}}" class="btn btn-info btn-sm">edit </a>
+                        <a href="{{url("/aset/$aset->id")}}" class="btn btn-info btn-sm">view </a>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="10">{{$semua_aset->links()}}</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+@endsection
+
+```
+
+#### B.8.3 Relationship
+
+Kita sudah bisa menampilkan daftar aset, tapi perhatikan field satker_id dan kategori_id, kita hanya bisa menampilkan id nya saja, padahal kita ingin bisa menampilkan nama_satker dan nama_kategori dari aset tersebut.
+
+Untuk itu kita perlu atur `relationship` antara model yaitu:
+
+-   model `Aset` punya satu relationhip dengan `Kategori`
+-   model `Aset` punya satu relationship dengan `Satker`
+
+caranya, buka model `app/Aset.php` lalu tambahkan dua method ini:
+
+```php
+public function satker()
+{
+    return $this->belongsTo('App\Satker', 'satker_id');
+}
+
+public function kategori()
+{
+    return $this->belongsTo('App\Kategori', 'kategori_id');
+}
+```
+
+Jika sudah ubah kode pada views `app/resources/aset/index.blade.php` cari kode berikut ini:
+
+```php
+<td> {{$aset->kategori_id}} </td>
+<td> {{$aset->satker_id}} </td>
+```
+
+Lalu ubah dengan kode ini:
+
+```php
+<td> {{$aset->kategori->nama_kategori}} </td>
+<td> {{$aset->satker->nama_satker}} </td>
+```
+
+### B.9 menampilkan detail view `Aset`
+
+Buka file `app/Http/Controllers/AsetController.php`
+lalu sesuaikan method `show` agar menjadi seperti ini:
+
+```php
+
+$aset = Aset::findOrFail($id);
+
+return view('aset/show', compact('aset'));
+
+```
+
+Lalu buat view pada `app/resources/views/aset/show.blade.php`
+
+```php
+@extends('layouts.app')
+
+@section('content')
+    <div class="container pt-5">
+        <div class="col-md-6 offset-md-3">
+            <table class="table table-bordered table-striped">
+                <tbody>
+                    <tr>
+                        <td>Kode aset</td>
+                        <td>{{$aset->kode}}</td>
+                    </tr>
+                    <tr>
+                        <td>Foto</td>
+                        <td>
+                            @if(isset($aset->photo_url))
+                                <img width="250px" src="{{asset("/storage/$aset->photo_url")}}" >
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Nama aset</td>
+                        <td>{{$aset->nama_aset}}</td>
+                    </tr>
+                    <tr>
+                        <td>Jenis</td>
+                        <td>{{$aset->jenis}}</td>
+                    </tr>
+                    <tr>
+                        <td>Kategori</td>
+                        <td>{{$aset->kategori->nama_kategori}}</td>
+                    </tr>
+                    <tr>
+                        <td>Satker</td>
+                        <td>{{$aset->satker->nama_satker}}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Kondisi</td>
+                        <td>{{$aset->kondisi}}</td>
+                    </tr>
+                    <tr>
+                        <td>Tanggal terima</td>
+                        <td>{{\Carbon\Carbon::create($aset->tgl_terima)->format('m/d/Y')}}</td>
+                    </tr>
+                    <tr>
+                        <td>Nilai perolehan</td>
+                        <td>Rp{{number_format($aset->nilai_perolehan)}}</td>
+                    </tr>
+                    <tr>
+                        <td>Keterangan</td>
+                        <td>
+                            {{$aset->keterangan}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+@endsection
+
+```

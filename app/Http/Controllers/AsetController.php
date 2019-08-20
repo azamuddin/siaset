@@ -17,7 +17,9 @@ class AsetController extends Controller
      */
     public function index()
     {
-        //
+        $semua_aset = Aset::orderBy('id', 'DESC')->paginate(10);
+
+        return view('aset/index', compact('semua_aset'));
     }
 
     /**
@@ -85,7 +87,9 @@ class AsetController extends Controller
      */
     public function show($id)
     {
-        //
+        $aset = Aset::findOrFail($id);
+
+        return view('aset/show', compact('aset'));
     }
 
     /**
