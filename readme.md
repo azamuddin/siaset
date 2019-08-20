@@ -988,7 +988,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Row;
 ```
 
-### D.2.3 buat method `import` di `AsetController` untuk menampilkan form import
+#### D.2.3 buat method `import` di `AsetController` untuk menampilkan form import
 
 ```php
 public function import()
@@ -997,7 +997,7 @@ public function import()
 }
 ```
 
-### D.2.4 buat view `app/resources/views/aset/import.blade.php`
+#### D.2.4 buat view `app/resources/views/aset/import.blade.php`
 
 File view ini untuk menampilkan form upload excel untuk import
 
@@ -1041,7 +1041,7 @@ File view ini untuk menampilkan form upload excel untuk import
 
 ```
 
-### D.2.5 buat method `processImport` pada `AsetController`
+#### D.2.5 buat method `processImport` pada `AsetController`
 
 method ini berfungsi untuk menangkap file excel yang diupload dan kita import ke database memanfaatkan file `AsetImports` yang kita buat sebelumnya.
 
@@ -1056,4 +1056,19 @@ public function processImport(Request $request)
 
     return redirect()->to('/aset/import')->with('message', 'Data aset telah berhasil diimport');
 }
+```
+
+#### D.2.6 buat tombol ke halaman import dari daftar aset
+
+Buka file `app/resources/views/aset/index.blade.php`
+lalu tambahkan kode ini:
+
+```php
+<a href="{{url('/aset/import')}}" class="btn btn-success"> Import </a>
+```
+
+Setelah kode ini:
+
+```php
+<a href="{{url('/aset/create')}}" class="btn btn-primary"> Tambah </a>
 ```
