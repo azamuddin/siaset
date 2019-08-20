@@ -1098,3 +1098,66 @@ Pastikan letak route baru tersebut ada di atas route resource aset ini:
 ```php
 Route::resource('/aset', 'AsetController');
 ```
+
+### D.3 Exports
+
+#### D.3.1 buat file `AsetExports`
+
+Ketik perintah ini di CMDer / CMD:
+
+```
+php artisan make:export AsetExports
+```
+
+File baru akan tercreate pada `app/Exports/AsetExports.php`
+
+#### D.3.2 Sesuaikan file `AsetExports` yang tergenerate
+
+```php
+<?php
+
+namespace App\Exports;
+
+use App\Aset;
+use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\FromCollection;
+
+class AsetExports implements FromCollection
+{
+
+    use Exportable;
+
+    public function collection()
+    {
+        return Aset::all();
+    }
+}
+
+```
+
+#### D.3.3 buat method `export` pada `AsetController`
+
+```php
+public function export(){
+    $export = new AsetExports;
+    return $export->download('aset.xlsx');
+}
+```
+
+> Jangan lupa karena kita menggunakan `AsetExports` maka kita tambahkan kode `use App\Exports\AsetExports` pada bagian atas file `AsetController.php`
+
+#### D.3.4 buat route untuk export pada `routes/web.php`
+
+```php
+Route::get('/aset/export', 'AsetController@export');
+```
+
+Letakkan kode di atas di atas `Route::resource` untuk `/aset`.
+
+#### D.3.4 Buat tombol export dari halaman daftar aset
+
+Tambahkan kode berikut ini di `app/resources/views/aset/index.blade.php`
+
+```php
+<a href="{{action('AsetController@export')}}" class="btn btn-info"> Export </a>
+```

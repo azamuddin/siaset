@@ -7,6 +7,7 @@
 
         <a href="{{url('/aset/create')}}" class="btn btn-primary"> Tambah </a>
         <a href="{{url('/aset/import')}}" class="btn btn-success"> Import </a>
+        <a href="{{action('AsetController@export')}}" class="btn btn-info"> Export </a>
         <br/>
         <br/>
         <hr>
