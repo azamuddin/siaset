@@ -17,6 +17,10 @@ class AsetController extends Controller
      */
     public function index()
     {
+        if (!\Auth::check()) {
+            abort(401);
+        }
+
         $semua_aset = Aset::orderBy('id', 'DESC')->paginate(10);
 
         return view('aset/index', compact('semua_aset'));

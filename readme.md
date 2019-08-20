@@ -626,3 +626,104 @@ Lalu buat view pada `app/resources/views/aset/show.blade.php`
 @endsection
 
 ```
+
+## C. Otorisasi
+
+### C.1 sesuaikan struktur table `users`
+
+Tambahkan field baru pada table users, yaitu field `role` dengan tipe `enum` dan bernilai `OPERATOR` atau `ADMINISTRATOR`
+
+caranya, buat file migration terlebih dahulu dengan perintah berikut:
+
+```
+php artisan make:migration alter_table_users_add_role --table=users
+```
+
+Lalu buka file `migration` yang tercreate, dan jadikan method `up` menjadi seperti ini:
+
+```php
+public function up()
+{
+    Schema::table('users', function (Blueprint $table) {
+        $table->enum('role', ['OPERATOR', 'ADMINISTRATOR']);
+    });
+}
+```
+
+Setelah itu jalankan perintah migrate seperti ini:
+
+```php
+php artisan migrate
+```
+
+Jika sudah, maka sekarang di table `users` sudah ada field `role`, bisa dicek melalui `phpmyadmin`.
+
+### C.2 Buat gate
+
+Buka file `app/Providers/AuthServiceProvider.php`, tambahkan kode berikut ini pada method `boot()` di file tersebut:
+
+```php
+\Gate::define('kelola-kategori', function ($user) {
+    return $user->role == "ADMINISTRATOR";
+});
+
+\Gate::define('kelola-lokasi', function ($user) {
+    return $user->role == "ADMINISTRATOR";
+});
+
+\Gate::define('kelola-satker', function ($user) {
+    return $user->role == "ADMINISTRATOR";
+});
+```
+
+### C.3 gunakan gate di masing-masing Controller action yang memerlukan
+
+Misal, kita ingin yang bisa mengelola kategori hanyalah admin, dan kita sudah mendefinisikannya pada Gate yaitu "kelola-kategori", maka sekarang buka file `app/Http/Controllers/KategoriController.php` dan tambahkan kode ini pada semua method di controller tersebut:
+
+```php
+$this->authorize('kelola-kategori');
+```
+
+Misalnya pada method `index` akan terlihat seperti ini:
+
+```php
+public function index()
+{
+    $this->authorize('kelola-kategori');
+
+    $semua_kategori = Kategori::orderBy->('id', 'DESC')->paginate(10);
+
+    return view('kategori/index', compact('semua_kategori'));
+}
+```
+
+> lanjutkan ke semua method yang lain: create, store, edit, update, destroy, delete
+
+Setelah itu Lakukan langkah yang sama untuk `SatkerController` perbedaannya ubah `kelola-kategori` dengan `kelola-satker`
+
+### C.4 khusus Aset, kita ingin semua role bisa memodifikasi, tapi jika belum login tidak bisa
+
+Untuk keperluan ini kita tidak perlu Gate, kita langsung ke `AsetController` dan tambahkan kode berikut pada setiap method:
+
+```php
+if (!\Auth::check()) {
+    abort(401);
+}
+```
+
+Misalnya untuk method `create` akan terlihat seperti ini:
+
+```php
+public function create()
+{
+
+    if (!\Auth::check()) {
+        abort(401);
+    }
+
+    $kategori = Kategori::all();
+    $satker = Satker::all();
+
+    return view('aset/create', compact('kategori', 'satker'));
+}
+```

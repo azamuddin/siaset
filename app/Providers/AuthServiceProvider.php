@@ -25,6 +25,16 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        \Gate::define('kelola-kategori', function ($user) {
+            return $user->role == "ADMINISTRATOR";
+        });
+
+        \Gate::define('kelola-lokasi', function ($user) {
+            return $user->role == "ADMINISTRATOR";
+        });
+
+        \Gate::define('kelola-satker', function ($user) {
+            return $user->role == "ADMINISTRATOR";
+        });
     }
 }

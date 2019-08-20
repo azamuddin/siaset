@@ -14,6 +14,7 @@ class KategoriController extends Controller
      */
     public function index()
     {
+        $this->authorize('kelola-kategori');
         $semua_kategori = Kategori::orderBy('id', 'DESC')->paginate(5);
         return view('kategori/index', compact('semua_kategori'));
     }
