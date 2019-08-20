@@ -25,3 +25,5 @@ Route::resource('/satker', 'SatkerController');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::resource('/aset', 'AsetController');
