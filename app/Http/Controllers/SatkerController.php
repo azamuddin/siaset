@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Kategori;
+use App\Satker;
 use Illuminate\Http\Request;
 
-class KategoriController extends Controller
+class SatkerController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,8 +14,8 @@ class KategoriController extends Controller
      */
     public function index()
     {
-        $semua_kategori = Kategori::orderBy('id', 'DESC')->paginate(5);
-        return view('kategori/index', compact('semua_kategori'));
+        $semua_satker = Satker::orderBy('id', 'DESC')->paginate(10);
+        return view('satker/index', compact('semua_satker'));
     }
 
     /**
@@ -25,7 +25,7 @@ class KategoriController extends Controller
      */
     public function create()
     {
-        return view('kategori/create');
+        return view('satker/create');
     }
 
     /**
@@ -36,13 +36,12 @@ class KategoriController extends Controller
      */
     public function store(Request $request)
     {
-        $kategori_baru = new Kategori;
-        $kategori_baru->nama_kategori = $request->nama_kategori;
+        $satker = new Satker;
+        $satker->nama_satker = $request->nama_satker;
+        $satker->save();
 
-        $kategori_baru->save();
-
-        return redirect("kategori/create")
-            ->with("pesan", "Berhasil menyimpan kategori");
+        return redirect("satker/create")
+            ->with("pesan", "Berhasil menyimpan satker");
     }
 
     /**
@@ -64,9 +63,9 @@ class KategoriController extends Controller
      */
     public function edit($id)
     {
-        $kategori = Kategori::findOrFail($id);
+        $satker = Satker::findOrFail($id);
 
-        return view('kategori/edit', compact('kategori'));
+        return view('satker/edit', compact('satker'));
     }
 
     /**
@@ -78,11 +77,18 @@ class KategoriController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $kategori_untuk_diupdate = Kategori::findOrFail($id);
-        $kategori_untuk_diupdate->nama_kategori = $request->nama_kategori;
-        $kategori_untuk_diupdate->save();
+        $satker = Satker::findOrFail($id);
+        $satker->nama_satker = $request->nama_satker;
+        $satker->save();
 
-        return redirect("kategori/$id/edit")->with('pesan', 'Berhasil mengupdate kategori');
+        return redirect("satker/$id/edit")->with('pesan', 'Berhasil mengupdate satker');
+    }
+
+    public function delete($id)
+    {
+        $satker = Satker::findOrFail($id);
+
+        return view('satker/delete', compact('satker'));
     }
 
     /**
@@ -93,17 +99,9 @@ class KategoriController extends Controller
      */
     public function destroy($id)
     {
-        $kategori = Kategori::findOrFail($id);
+        $satker = Satker::findOrFail($id);
+        $satker->delete();
 
-        $kategori->delete();
-
-        return redirect("kategori");
-    }
-
-    public function delete($id)
-    {
-        $kategori = Kategori::findOrFail($id);
-
-        return view('kategori/delete', compact('kategori'));
+        return redirect("satker");
     }
 }

@@ -4,31 +4,31 @@
 <div class="container">
             <div class="row">
                 <div class="col-md-6 offset-md-3 pt-5">
-                    <h3>Daftar Kategori</h3>
+                    <h3>Daftar Satker</h3>
                     <br>
-                    <a href="{{url('kategori/create') }}" class="btn btn-primary">Tambah</a>
+                    <a href="{{url('satker/create') }}" class="btn btn-primary">Tambah</a>
                     <br>
                     <br>
                     <table class="table table-bordered table-striped">
                         <thead>
                             <tr>
-                                <th>ID Kategori</th>
-                                <th>Nama kategori</th>
+                                <th>ID Satker</th>
+                                <th>Nama satker</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($semua_kategori as $kategori)
+                            @foreach($semua_satker as $satker)
                                 <tr>
                                     <td>
-                                        {{$kategori->id}}
+                                        {{$satker->id}}
                                     </td>
                                     <td>
-                                        {{$kategori->nama_kategori}}
+                                        {{$satker->nama_satker}}
                                     </td>
                                     <td>
-                                        <a href="{{ url("kategori/$kategori->id/edit") }}" class="btn btn-info"> Edit </a>
-                                        <a href="{{ url("kategori/$kategori->id/delete") }}" class="btn btn-danger"> Hapus </a>
+                                        <a href="{{ url("satker/$satker->id/edit") }}" class="btn btn-info"> Edit </a>
+                                        <a href="{{ url("satker/$satker->id/delete") }}" class="btn btn-danger"> Hapus </a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -36,7 +36,7 @@
                     </table>
 
 
-                    {{$semua_kategori->links()}}
+                    {{$semua_satker->links()}}
                 </div>
             </div>
         </div>

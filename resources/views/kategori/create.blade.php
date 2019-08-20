@@ -1,33 +1,29 @@
-<html>
-    <head>
-        <title> Buat kategori </title>
-    </head>
+@extends('layouts/app')
 
-    <link rel="stylesheet" href="{{asset('css/app.css')}}">
+@section('content')
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 offset-md-3 pt-5">
 
-    <body>
-        <div class="container pt-4">
-            <div class="col-md-6 offset-md-3">
+                    @if(Session::has('pesan'))
+                        <div class="alert alert-success">
+                            {{ Session::get('pesan') }}
+                        </div>
+                    @endif
 
-                <h3>Buat kategori</h3>
+                    <form action="{{url('kategori')}}" method="POST">
 
-                @if(Session::has('message'))
-                    <div class="alert alert-success">
-                        {{ Session::get('message') }}
-                    </div>
-                @endif
+                        {{ csrf_field() }}
 
+                        <label>Nama Kategori</label>
+                        <input type="text" name="nama_kategori" class="form-control" />
+                        <br>
+                        <input type="submit" class="btn btn-primary" value="Simpan">
 
-                <form action="{{url("/kategori")}}" method="POST">
+                        <a href="{{url('kategori') }}" class="btn btn-warning">Daftar kategori</a>
 
-                    {{csrf_field()}}
-
-                    <input type="text" name="nama_kategori" class="form-control"/>
-                    <br>
-                    <input type="submit" value="Simpan" class="btn btn-primary">
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
-    </body>
-
-</html>
+@endsection

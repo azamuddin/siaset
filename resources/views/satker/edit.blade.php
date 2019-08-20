@@ -12,18 +12,18 @@
                         </div>
                     @endif
 
-                    <form action="{{url("kategori/$kategori->id")}}" method="POST">
+                    <form action="{{url("satker/$satker->id")}}" method="POST">
 
                         {{ csrf_field() }}
 
                         <input type="hidden" name="_method" value="PUT">
 
                         <label>Nama Kategori</label>
-                        <input type="text" name="nama_kategori" value="{{ $kategori->nama_kategori }}" class="form-control" />
+                        <input type="text" name="nama_satker" value="{{ $satker->nama_satker }}" class="form-control" />
                         <br>
                         <input type="submit" class="btn btn-primary" value="Simpan">
 
-                        <a href="{{url('kategori') }}" class="btn btn-warning">Daftar kategori</a>
+                        <a href="{{url('satker') }}" class="btn btn-warning">Daftar satker</a>
 
                     </form>
                 </div>
