@@ -902,3 +902,158 @@ public function create()
     return view('aset/create', compact('kategori', 'satker'));
 }
 ```
+
+## D. Import & Export Excel
+
+### D.1 Install package maatwebsite/excel
+
+https://docs.laravel-excel.com/3.1/getting-started/installation.html
+
+jalankan perintah di CMDer / CMD:
+
+```
+composer require maatwebsite/excel
+```
+
+Kemudian publish konfigurasi yang dibawa oleh package tersebut, dengan mengetik perintah ini di CMDer / CMD:
+
+```
+php artisan vendor:publish --provider="Maatwebsite\Excel\ExcelServiceProvider"
+```
+
+Perintah tersebut akan membuat file baru di `config/excel.php`.
+
+### D.2 Import
+
+#### D.2.1 buat file import baru
+
+Setelah menginstall maatwebsite/excel, sekarang kita punya perintah artisan `make:import`.
+
+Ketik perintah di CMDer/ CMD:
+
+```
+php artisan make:import AsetImports --model=Aset
+```
+
+File baru akan tercreate di `app/Imports/AsetImports.php`
+
+#### D.2.2 sesuaikan file `app/Imports/AsetImports.php`
+
+Pastikan class `AsetImports` menjadi seperti di bawah ini:
+
+```php
+
+class AsetImports implements OnEachRow, WithHeadingRow
+{
+
+    public function onRow(Row $row)
+    {
+        $rowIndex = $row->getIndex();
+        $row = $row->toArray();
+
+        $satker = Satker::firstOrCreate([
+            "nama_satker" => $row["satker"]
+        ]);
+
+        $kategori = Kategori::firstOrCreate([
+            "nama_kategori" => $row["kategori"]
+        ]);
+
+        // asumsi column pertama di file excel adalah kode aset
+        Aset::firstOrCreate([
+            "kode" => $row["kode"],
+            "nama_aset" => $row["nama"],
+            "nilai_perolehan" => $row["nilai"],
+            "jenis" => $row["jenis"],
+            "kondisi" => $row["kondisi"],
+            "satker_id" => $satker->id,
+            "kategori_id" => $kategori->id,
+            "tgl_terima" => Carbon::create($row["tgl_terima"]),
+            "keterangan"  => $row["keterangan"]
+        ]);
+    }
+}
+
+```
+
+> Jangan lupa karena kita menggunakan model `Satker`, `Kategori`, `Aset` serta class `Carbon`, `OnEachRow`, `WithHeadingRow` dan `Row` maka kita perlu memberi tahu file-file tersebut asalnya dari mana, dengan memberikan kode berikut ini di bagian atas file setelah `namespace`:
+
+```php
+use App\Aset;
+use App\Kategori;
+use App\Satker;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\OnEachRow;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Row;
+```
+
+### D.2.3 buat method `import` di `AsetController` untuk menampilkan form import
+
+```php
+public function import()
+{
+    return view("aset/import");
+}
+```
+
+### D.2.4 buat view `app/resources/views/aset/import.blade.php`
+
+File view ini untuk menampilkan form upload excel untuk import
+
+```php
+@extends('layouts.app')
+
+@section('content')
+    <div class="container">
+        <div class="col-md-6 offset-md-3">
+            <h3>Import data aset</h3>
+
+            @if(Session::has('message'))
+                <div class="alert alert-success">
+                    {{Session::get('message')}}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach($errors->all() as $error)
+                            <li>{{$error}}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <form method="POST" enctype="multipart/form-data">
+
+                {{ csrf_field() }}
+
+                <input type="file" name="aset-excel">
+
+                <br>
+                <br>
+
+                <input type="submit" value="Upload" class="btn btn-primary">
+            </form>
+        </div>
+    </div>
+@endsection
+
+```
+
+### D.2.5 buat method `processImport` pada `AsetController`
+
+method ini berfungsi untuk menangkap file excel yang diupload dan kita import ke database memanfaatkan file `AsetImports` yang kita buat sebelumnya.
+
+```php
+public function processImport(Request $request)
+{
+    $request->validate([
+        "aset-excel" => "required|file|mimes:xls,xlsx|max:10000"
+    ]);
+
+    Excel::import(new AsetImports, $request->file('aset-excel'));
+
+    return redirect()->to('/aset/import')->with('message', 'Data aset telah berhasil diimport');
+}
+```
