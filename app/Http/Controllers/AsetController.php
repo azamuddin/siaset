@@ -54,7 +54,6 @@ class AsetController extends Controller
             "photo" => "file|image|mimes:jpeg,png,gif,webp|max:2048",
             "jenis" => "required",
             "kategori_id" => "required",
-            "lokasi_id" => "required",
             "tgl_terima" => "required",
             "kondisi" => "required",
             "satker_id" => "required",
@@ -104,7 +103,11 @@ class AsetController extends Controller
      */
     public function edit($id)
     {
-        //
+        $aset = Aset::findOrFail($id);
+        $kategori = Kategori::all();
+        $satker = Satker::all();
+
+        return view('aset/edit', compact('aset', 'kategori', 'satker'));
     }
 
     /**
@@ -116,7 +119,43 @@ class AsetController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            "nama_aset" => "required|min:4|max:255",
+            "kode" => "required|min:3|max:255",
+            "photo" => "file|image|mimes:jpeg,png,gif,webp|max:2048",
+            "jenis" => "required",
+            "kategori_id" => "required",
+            "tgl_terima" => "required",
+            "kondisi" => "required",
+            "satker_id" => "required",
+            "nilai_perolehan" => "required"
+        ]);
+
+        $aset = Aset::findOrFail($id);
+        $aset->kode = $request->kode;
+        $aset->nama_aset = $request->nama_aset;
+        $aset->keterangan = $request->keterangan;
+        $aset->nilai_perolehan = $request->nilai_perolehan;
+        $aset->satker_id = $request->satker_id;
+        $aset->kategori_id = $request->kategori_id;
+        $aset->jenis = $request->jenis;
+        $aset->kondisi = $request->kondisi;
+        $aset->tgl_terima = Carbon::create($request->tgl_terima);
+
+        if ($request->hasFile('photo')) {
+
+            // hapus foto lama
+            \Storage::delete($aset->photo_url);
+
+            // simpan foto baru
+            $path = $request->file('photo')->store("aset/$aset->id", "public");
+
+            $aset->photo_url = $path;
+        }
+
+        $aset->save();
+
+        return redirect()->to("/aset/$id/edit")->with("message", "Berhasil mengupdate aset");
     }
 
     /**

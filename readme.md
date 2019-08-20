@@ -426,7 +426,6 @@ $request->validate([
     "photo" => "file|image|mimes:jpeg,png,gif,webp|max:2048",
     "jenis" => "required",
     "kategori_id" => "required",
-    "lokasi_id" => "required",
     "tgl_terima" => "required",
     "kondisi" => "required",
     "satker_id" => "required",
@@ -627,6 +626,186 @@ Lalu buat view pada `app/resources/views/aset/show.blade.php`
 
 ```
 
+### B.10 Edit aset
+
+#### B.10.1 Sesuaikan method edit pada `AsetController` seperti ini:
+
+```php
+public function edit($id){
+    $aset = Aset::findOrFail($id);
+    $kategori = Kategori::all();
+    $satker = Satker::all();
+
+    return view('aset/edit', compact('aset', 'kategori', 'satker'));
+}
+```
+
+#### B.10.2 Buat views untuk edit aset
+
+Lalu buat file views `app/resources/views/aset/edit.blade.php`
+
+```php
+@extends('layouts.app')
+
+
+@section('content')
+    <div class="container">
+        <div class="col-md-6 offset-md-3">
+
+            @if(Session::has('message'))
+                <div class="alert alert-success">
+                    {{ Session::get('message')}}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach($errors->all() as $error)
+                        <li>{{$error}}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{url("aset/$aset->id")}}" method="POST" enctype="multipart/form-data">
+
+                <input type="hidden" name="_method" value="PUT">
+
+                {{ csrf_field() }}
+
+                <div class="form-group">
+                    <label> Kode aset </label>
+                    <input type="text" value="{{$aset->kode}}" class="form-control" name="kode" />
+                </div>
+
+                <div class="form-group">
+                    <label for="">Foto</label>
+                    <input type="file" name="photo" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="">Nama aset</label>
+                    <input type="text" value="{{$aset->nama_aset}}" name="nama_aset" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="">Nilai perolehan</label>
+                    <input type="text" name="nilai_perolehan" value="{{$aset->nilai_perolehan}}" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="">Keterangan</label>
+                    <textarea name="keterangan" cols="30" rows="4" class="form-control">{{$aset->keterangan}}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label> Tanggal terima </label>
+                    <input type="text" autocomplete="off" value="{{\Carbon\Carbon::create($aset->tgl_terima)->format('m/d/Y')}}" class=" tanggal" name="tgl_terima">
+                </div>
+
+                <div class="form-group">
+                    <label> Kondisi </label>
+                    <select class=form-control name="kondisi">
+                        <option {{$aset->kondisi == "BAIK" ? "selected": ""}} value="BAIK">BAIK</option>
+                        <option {{$aset->kondisi == "RUSAK" ? "selected" : ""}} value="RUSAK">RUSAK</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label> Jenis </label>
+                    <select class=form-control name="jenis">
+                        <option {{$aset->jenis == "BERGERAK" ? "selected" : ""}} value="BERGERAK">ASET BERGERAK</option>
+                        <option {{$aset->jenis == "TETAP" ? "selected" : ""}} value="TETAP">ASET TETAP</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select name="kategori_id" class="form-control">
+                        <option value="">Pilih kategori</option>
+                        @foreach($kategori as $k)
+                            <option {{$aset->kategori_id == $k->id ? "selected" : ""}} value="{{$k->id}}"> {{$k->nama_kategori}} </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Satker</label>
+                    <select name="satker_id" class="form-control">
+                        <option value="">Pilih satker</option>
+                        @foreach($satker as $s)
+                            <option {{$aset->satker_id == $s->id ? "selected" : ""}} value="{{$s->id}}"> {{$s->nama_satker}} </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <input type="submit" class="btn btn-primary" value="Simpan">
+
+
+            </form>
+        </div>
+    </div>
+@endsection
+@push('scripts')
+    <script>
+        $(document).ready(function(){
+            $('input.tanggal').datepicker();
+        })
+
+    </script>
+@endpush
+
+```
+
+#### B.10.3 Tangkap data edit dan simpan ke database
+
+Pada `AsetController` method `update` jadikan seperti ini:
+
+```php
+public function update(Request $request, $id)
+    {
+        $request->validate([
+            "nama_aset" => "required|min:4|max:255",
+            "kode" => "required|min:3|max:255",
+            "photo" => "file|image|mimes:jpeg,png,gif,webp|max:2048",
+            "jenis" => "required",
+            "kategori_id" => "required",
+            "tgl_terima" => "required",
+            "kondisi" => "required",
+            "satker_id" => "required",
+            "nilai_perolehan" => "required"
+        ]);
+
+        $aset = Aset::findOrFail($id);
+        $aset->kode = $request->kode;
+        $aset->nama_aset = $request->nama_aset;
+        $aset->keterangan = $request->keterangan;
+        $aset->nilai_perolehan = $request->nilai_perolehan;
+        $aset->satker_id = $request->satker_id;
+        $aset->kategori_id = $request->kategori_id;
+        $aset->jenis = $request->jenis;
+        $aset->kondisi = $request->kondisi;
+        $aset->tgl_terima = Carbon::create($request->tgl_terima);
+
+        if ($request->hasFile('photo')) {
+
+            // hapus foto lama
+            \Storage::delete($aset->photo_url);
+
+            // simpan foto baru
+            $path = $request->file('photo')->store("aset/$aset->id", "public");
+
+            $aset->photo_url = $path;
+        }
+
+        $aset->save();
+
+        return redirect()->to("/aset/$id/edit")->with("message", "Berhasil mengupdate aset");
+    }
+
+```
+
 ## C. Otorisasi
 
 ### C.1 sesuaikan struktur table `users`
@@ -664,10 +843,6 @@ Buka file `app/Providers/AuthServiceProvider.php`, tambahkan kode berikut ini pa
 
 ```php
 \Gate::define('kelola-kategori', function ($user) {
-    return $user->role == "ADMINISTRATOR";
-});
-
-\Gate::define('kelola-lokasi', function ($user) {
     return $user->role == "ADMINISTRATOR";
 });
 
