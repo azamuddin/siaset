@@ -6,8 +6,8 @@
 -   Upload foto `Aset`
 -   Request Validation CRUD `Aset`
 -   Authorization
--   Charts
 -   Import & Export Excel
+-   Charts
 
 ## B. CRUD `Aset`
 
