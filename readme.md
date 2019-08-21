@@ -1161,3 +1161,26 @@ Tambahkan kode berikut ini di `app/resources/views/aset/index.blade.php`
 ```php
 <a href="{{action('AsetController@export')}}" class="btn btn-info"> Export </a>
 ```
+
+E. Charts
+
+E.1 Install lavacharts
+
+```
+composer require khill/lavacharts
+```
+
+E.2 atur konfigurasi
+
+buka file `app/config/app.php`
+lalu tambahkan kode berikut pada key `providers`:
+
+```
+Khill\Lavacharts\Laravel\LavachartsServiceProvider::class
+```
+
+Lalu pada key `aliases` tambahkan:
+
+```
+'Lava' => Khill\Lavacharts\Laravel\LavachartsFacade::class
+```
