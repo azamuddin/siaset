@@ -1,13 +1,13 @@
 # Petunjuk pelatihan Hari ke 3
 
-## A. Materi:
+## A. Outline:
 
--   CRUD `Aset`
--   Upload foto `Aset`
--   Request Validation CRUD `Aset`
--   Authorization
--   Import & Export Excel
--   Charts
+-   A. Outline
+-   B. CRUD `Aset`
+-   B.7 Request Validation `Aset`
+-   C. Authorization / Otorisasi
+-   D. Import & Export Excel
+-   E. Charts
 
 ## B. CRUD `Aset`
 
