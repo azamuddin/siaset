@@ -44,11 +44,11 @@ class CreateAsetTable extends Migration
             $table->enum('kondisi', ["BAIK", "RUSAK"]);
             $table->enum('jenis', ['TETAP', 'BERGERAK']);
             $table->string('nama_aset', 255);
-            $table->string('kode', 255);
+            $table->string('kode', 255)->unique();
             $table->integer('nilai_perolehan');
             $table->text('keterangan');
             $table->timestamp('tgl_terima');
-            $table->string('photo_url')->nullable();
+            $table->text('photo_url')->nullable();
             $table->integer('satker_id')->unsigned();
             $table->integer('kategori_id')->unsigned();
             $table->timestamps();
@@ -377,10 +377,9 @@ Buka file `app/Http/Controllers/AsetController.php` lalu tambahkan kode ini pada
 ```php
 
 if ($request->hasFile('photo')) {
-    $fd = $request->file('photo')->store("/aset/", 'public');
+    $path = $request->file('photo')->store("/aset/", 'public');
+    $aset_baru->photo_url = $path;
 }
-
-$aset_baru->photo_url = $fd;
 
 ```
 
