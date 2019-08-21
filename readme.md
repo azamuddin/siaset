@@ -8,7 +8,7 @@
 -   C. Authorization / Otorisasi
 -   D. Import & Export Excel
 -   E. Charts
--   F. Membat menu topbar
+-   F. Membuat menu topbar
 -   G. Filter Aset
 
 ## B. CRUD `Aset`
