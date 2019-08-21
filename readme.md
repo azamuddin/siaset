@@ -9,6 +9,7 @@
 -   D. Import & Export Excel
 -   E. Charts
 -   F. Membat menu topbar
+-   G. Filter Aset
 
 ## B. CRUD `Aset`
 
