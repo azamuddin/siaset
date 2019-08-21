@@ -17,16 +17,38 @@ class AsetController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+
         if (!\Auth::check()) {
             abort(401);
         }
 
-        $semua_aset = Aset::orderBy('id', 'DESC')->paginate(10);
+        $q_nama_aset = $request->get('q_nama_aset');
+        $q_kondisi = $request->q_kondisi;
+        $q_jenis = $request->q_jenis;
+        $q_kategori = $request->q_kategori;
+        $q_satker = $request->q_satker;
 
-        return view('aset/index', compact('semua_aset'));
+
+        $semua_aset = Aset::orderBy('id', 'DESC')
+            ->where('nama_aset', 'like', "%$q_nama_aset%")
+            ->where('kondisi', 'like', "%$q_kondisi%")
+            ->where('jenis', 'like', "%$q_jenis%")
+            ->when($q_kategori, function ($query, $q_kategori) {
+                return $query->where('kategori_id', $q_kategori);
+            })
+            ->when($q_satker, function ($query, $q_satker) {
+                return $query->where('satker_id', $q_satker);
+            })
+            ->paginate(10);
+
+        $kategori = Kategori::all();
+        $satker = Satker::all();
+
+        return view('aset/index', compact('semua_aset', 'kategori', 'satker'));
     }
+
 
     /**
      * Show the form for creating a new resource.

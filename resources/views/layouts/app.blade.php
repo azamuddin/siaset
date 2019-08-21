@@ -35,6 +35,13 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
+                          @auth
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url('aset') }}">{{ __('Aset') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link"  href="{{ url('aset/charts') }}">{{ __('Dashboard') }}</a>
+                            </li>
                             @if(\Gate::allows('kelola-kategori'))
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ url('kategori') }}">{{ __('Kategori') }}</a>
@@ -52,6 +59,7 @@
                                     <a class="nav-link" href="{{ url('satker') }}">{{ __('Satker') }}</a>
                                 </li>
                             @endif
+                            @endauth
                     </ul>
 
                     <!-- Right Side Of Navbar -->

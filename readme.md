@@ -1341,6 +1341,13 @@ Lalu cari kode berikut ini:
 Lalu tambahkan kode berikut dibawahnya:
 
 ```php
+@auth
+<li class="nav-item">
+    <a class="nav-link" href="{{ url('aset') }}">{{ __('Aset') }}</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link"  href="{{ url('aset/charts') }}">{{ __('Dashboard') }}</a>
+</li>
 @if(\Gate::allows('kelola-kategori'))
     <li class="nav-item">
         <a class="nav-link" href="{{ url('kategori') }}">{{ __('Kategori') }}</a>
@@ -1358,4 +1365,92 @@ Lalu tambahkan kode berikut dibawahnya:
         <a class="nav-link" href="{{ url('satker') }}">{{ __('Satker') }}</a>
     </li>
 @endif
+@endauth
+```
+
+G. Filter aset
+
+G.1 buat view untuk filter aset
+
+Tambahkan kode berikut ini sebelum / diatas kode `<table ...>` pada `resources/views/aset/index.blade.php`
+
+```php
+<form action="" method="GET">
+    <div class="row">
+        <div class="col-md-3">
+            <input type="text" value="{{\Request::get('q_nama_aset')}}" name="q_nama_aset" class="form-control" placeholder="Filter by nama aset">
+        </div>
+        <div class="col-md-2">
+            <select name="q_kondisi" class="form-control">
+                <option value="">Semua kondisi</option>
+                <option {{\Request::get('q_kondisi') == "BAIK" ? "selected" : ""}} value="BAIK">BAIK</option>
+                <option {{\Request::get('q_kondisi') == "RUSAK" ? "selected" : ""}} value="RUSAK">RUSAK</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="q_jenis" class="form-control">
+                <option value="">Semua jenis</option>
+                <option {{\Request::get('q_jenis') == "BERGERAK" ? "selected" : ""}} value="BERGERAK">BERGERAK</option>
+                <option {{\Request::get('q_jenis') == "TETAP" ? "selected" : ""}} value="TETAP">TETAP</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="q_kategori" class="form-control">
+                <option value="">Semua kategori</option>
+                @foreach($kategori as $k)
+                    <option {{\Request::get('q_kategori') == $k->id ? "selected" : ""}} value="{{$k->id}}">{{$k->nama_kategori}}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="q_satker" class="form-control">
+                <option value="">Semua satker</option>
+                @foreach($satker as $s)
+                    <option {{\Request::get('q_satker') == $s->id ? "selected" : ""}} value="{{$s->id}}">{{$s->nama_satker}}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-1">
+            <button class="btn btn-info">Filter</button>
+        </div>
+
+    </div>
+</form>
+
+```
+
+Ubah `AsetController` method `index` agar bisa memproses filter request:
+
+```php
+public function index(Request $request)
+{
+
+    if (!\Auth::check()) {
+        abort(401);
+    }
+
+    $q_nama_aset = $request->get('q_nama_aset');
+    $q_kondisi = $request->q_kondisi;
+    $q_jenis = $request->q_jenis;
+    $q_kategori = $request->q_kategori;
+    $q_satker = $request->q_satker;
+
+    $semua_aset = Aset::orderBy('id', 'DESC')
+        ->where('nama_aset', 'like', "%$q_nama_aset%")
+        ->where('kondisi', 'like', "%$q_kondisi%")
+        ->where('jenis', 'like', "%$q_jenis%")
+        ->when($q_kategori, function ($query, $q_kategori) {
+            return $query->where('kategori_id', $q_kategori);
+        })
+        ->when($q_satker, function ($query, $q_satker) {
+            return $query->where('satker_id', $q_satker);
+        })
+        ->paginate(10);
+
+    $kategori = Kategori::all();
+    $satker = Satker::all();
+
+    return view('aset/index', compact('semua_aset', 'kategori', 'satker'));
+}
+
 ```
