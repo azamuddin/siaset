@@ -1062,7 +1062,7 @@ public function processImport(Request $request)
         "aset-excel" => "required|file|mimes:xls,xlsx|max:10000"
     ]);
 
-    Excel::import(new AsetImports, $request->file('aset-excel'));
+    \Excel::import(new AsetImports, $request->file('aset-excel'));
 
     return redirect()->to('/aset/import')->with('message', 'Data aset telah berhasil diimport');
 }
