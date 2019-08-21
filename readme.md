@@ -8,6 +8,7 @@
 -   C. Authorization / Otorisasi
 -   D. Import & Export Excel
 -   E. Charts
+-   F. Membat menu topbar
 
 ## B. CRUD `Aset`
 
@@ -1326,3 +1327,35 @@ Route::get('/aset/charts', 'AsetController@charts');
 ```
 
 Letakan di atas resource route untuk charts
+
+## F. Membuat menu pada topbar
+
+Buka file `resources/views/layouts/app.blade.php`
+
+Lalu cari kode berikut ini:
+
+```php
+<ul class="navbar-nav mr-auto">
+```
+
+Lalu tambahkan kode berikut dibawahnya:
+
+```php
+@if(\Gate::allows('kelola-kategori'))
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url('kategori') }}">{{ __('Kategori') }}</a>
+    </li>
+@endif
+
+@if(\Gate::allows('kelola-lokasi'))
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url('lokasi') }}">{{ __('Lokasi') }}</a>
+    </li>
+@endif
+
+@if(\Gate::allows('kelola-satker'))
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url('satker') }}">{{ __('Satker') }}</a>
+    </li>
+@endif
+```

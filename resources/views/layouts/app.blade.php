@@ -35,7 +35,23 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
+                            @if(\Gate::allows('kelola-kategori'))
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url('kategori') }}">{{ __('Kategori') }}</a>
+                                </li>
+                            @endif
 
+                            @if(\Gate::allows('kelola-lokasi'))
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url('lokasi') }}">{{ __('Lokasi') }}</a>
+                                </li>
+                            @endif
+
+                            @if(\Gate::allows('kelola-satker'))
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url('satker') }}">{{ __('Satker') }}</a>
+                                </li>
+                            @endif
                     </ul>
 
                     <!-- Right Side Of Navbar -->
