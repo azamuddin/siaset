@@ -29,4 +29,5 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/aset/import', 'AsetController@import');
 Route::post('/aset/import', 'AsetController@processImport');
 Route::get('/aset/export', 'AsetController@export');
+Route::get('/aset/charts', 'AsetController@charts');
 Route::resource('/aset', 'AsetController');

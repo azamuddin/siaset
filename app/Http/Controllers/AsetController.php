@@ -192,4 +192,93 @@ class AsetController extends Controller
         $export = new AsetExports;
         return $export->download('aset.xlsx');
     }
+
+    public function charts()
+    {
+        $dataTable = \Lava::DataTable();
+
+        $dataTable->addStringColumn('Jenis')
+            ->addNumberColumn('Percent');
+
+
+        $aset_count = Aset::count();
+        $aset_by_jenis = Aset::groupBy('jenis')
+            ->select('jenis', \DB::raw('count(*) as count'))
+            ->get();
+
+        foreach ($aset_by_jenis as $jenis) {
+            $dataTable->addRow([$jenis->jenis, $jenis->count / $aset_count]);
+        }
+
+        $pieByJenis = \Lava::PieChart('pie_by_jenis', $dataTable, [
+            'title'  => 'Aset berdasarkan jenis',
+            'is3D'   => true,
+            'slices' => [
+                ['offset' => 0.2],
+                ['offset' => 0.25],
+                ['offset' => 0.3]
+            ]
+        ]);
+
+        // aset by kondisi
+
+        $aset_by_kondisi = Aset::groupBy('kondisi')
+            ->select('kondisi', \DB::raw('count(*) as count'))
+            ->get();
+
+        $byKondisiTable = \Lava::DataTable();
+
+        $byKondisiTable
+            ->addStringColumn('kondisi')
+            ->addNumberColumn('percent');
+
+        foreach ($aset_by_kondisi as $kondisi) {
+            $byKondisiTable->addRow([$kondisi->kondisi, $kondisi->count / $aset_count]);
+        }
+
+        $pieByKondisi = \Lava::PieChart('pie_by_kondisi', $byKondisiTable);
+
+        // aset by kategori
+
+        $aset_by_kategori = Aset::with('kategori')->get()->map(function ($aset) {
+            $aset->nama_kategori = $aset->kategori->nama_kategori;
+            return $aset;
+        })->groupBy('nama_kategori');
+
+        $byKategoriTable = \Lava::DataTable()
+            ->addStringColumn('kategori')
+            ->addNumberColumn('jumlah');
+
+        foreach ($aset_by_kategori as $kategori) {
+            $nama_kategori = $kategori->pluck('nama_kategori')[0];
+            $byKategoriTable->addRow([$nama_kategori, count($kategori)]);
+        }
+
+        $pieByKategori = \Lava::PieChart('pie_by_kategori', $byKategoriTable, [
+            "title" => "Aset berdasarkan kategori",
+            "orientation" => "horizontal"
+        ]);
+
+        // aset by satker
+        $aset_by_satker = Aset::with('satker')->get()->map(function ($aset) {
+            $aset->nama_satker = $aset->satker->nama_satker;
+            return $aset;
+        })->groupBy('nama_satker');
+
+        $byKategoriTable = \Lava::DataTable()
+            ->addStringColumn('satker')
+            ->addNumberColumn('jumlah');
+
+        foreach ($aset_by_satker as $satker) {
+            $nama_satker = $satker->pluck('nama_satker')[0];
+            $byKategoriTable->addRow([$nama_satker, count($satker)]);
+        }
+
+        $pieBySatker = \Lava::PieChart('pie_by_satker', $byKategoriTable, [
+            "title" => "Aset berdasarkan satker",
+            "orientation" => "horizontal"
+        ]);
+
+        return view('aset/charts', compact('pieByJenis', 'pieByKondisi', 'pieByKategori', 'pieBySatker'));
+    }
 }
