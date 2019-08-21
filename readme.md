@@ -766,7 +766,7 @@ public function update(Request $request, $id)
     {
         $request->validate([
             "nama_aset" => "required|min:4|max:255",
-            "kode" => "required|min:3|max:255",
+            "kode" => "required|min:3|max:255|unique",
             "photo" => "file|image|mimes:jpeg,png,gif,webp|max:2048",
             "jenis" => "required",
             "kategori_id" => "required",
